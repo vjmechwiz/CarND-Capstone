@@ -3,7 +3,7 @@
 import rospy
 from geometry_msgs.msg import PoseStamped
 from styx_msgs.msg import Lane, Waypoint
-
+from scipy.spatial import KDTree
 import math
 
 '''
@@ -37,16 +37,55 @@ class WaypointUpdater(object):
         self.final_waypoints_pub = rospy.Publisher('final_waypoints', Lane, queue_size=1)
 
         # TODO: Add other member variables you need below
+        self.latest_pose = None
+        self.orig_waypoints = None
+        self.xycoords_orig_waypoints = None
+        self.kdtree_orig_waypoints = None
+        self.id_closest_waypoint = None
 
-        rospy.spin()
+        self.loop_till_shutdown()
+        #rospy.spin()
+
+    def loop_till_shutdown():
+        rate = rospy.Rate(50)
+        while not rospy.is_shutdown():
+            # add if condition if required
+            self.id_closest_waypoint = self.find_id_closest_waypoint()
+            lane = Lane()
+            lane.header = self.orig_waypoints.header
+            lane.waypoints = self.orig_waypoints.waypoints[self.id_closest_waypoint : self.id_closest_waypoint + LOOKAHEAD_WPS]
+            self.final_waypoints_pub.publish(lane)
+            rate.sleep()
+
+    def find_id_closest_waypoint():
+        x_pos = self.latest_pose.pose.position.x
+        y_pos = self.latest_pose.pose.position.y
+        id_closest = self.kdtree_orig_waypoints.query([xpos, ypos], 1)[1]
+
+        # check if the closest waypoint is ahead of or behind the current position
+        current_posvec = np.array([xpos, ypos])
+        closest_pt_posvec = np.array(self.xycoords_orig_waypoints[id_closest])
+        prev_closest_pt_posvec = np.array(self.xycoords_orig_waypoints[id_closest-1])
+
+        waypoint_vec = closest_pt_posvec - prev_closest_pt_posvec
+        proposed_heading_vec = closest_pt_posvec - current_posvec
+
+        if np.dot(waypoint_vec, proposed_heading_vec) <= 0:
+            id_closest = (id_closest + 1) % len(self.xycoords_orig_waypoints)
+        
+        return id_closest   
 
     def pose_cb(self, msg):
         # TODO: Implement
-        pass
+        self.latest_pose = msg
 
     def waypoints_cb(self, waypoints):
         # TODO: Implement
-        pass
+        self.orig_waypoints = waypoints
+        # add if condition if required
+        self.xycoords_orig_waypoints = [[waypoint.pose.pose.position.x, 
+                                         waypoint.pose.pose.position.y] for waypoint in waypoints]
+        self.kdtree_orig_waypoints = KDTree(self.xycoords_orig_waypoints)
 
     def traffic_cb(self, msg):
         # TODO: Callback for /traffic_waypoint message. Implement
