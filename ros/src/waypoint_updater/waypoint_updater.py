@@ -48,9 +48,9 @@ class WaypointUpdater(object):
         #rospy.spin()
 
     def loop_till_shutdown(self):
-        rate = rospy.Rate(50)
+        rate = rospy.Rate(10)
         while not rospy.is_shutdown():
-            if self.latest_pose and self.orig_waypoints:
+            if self.latest_pose and self.kdtree_orig_waypoints:
                 self.id_closest_waypoint = self.find_id_closest_waypoint()
                 lane = Lane()
                 lane.header = self.orig_waypoints.header
