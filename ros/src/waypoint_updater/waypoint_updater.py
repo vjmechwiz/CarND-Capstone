@@ -2,6 +2,7 @@
 
 import rospy
 from geometry_msgs.msg import PoseStamped
+from std_msgs.msg import Int32
 from styx_msgs.msg import Lane, Waypoint
 from scipy.spatial import KDTree
 import numpy as np
@@ -22,8 +23,8 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 200 # Number of waypoints we will publish. You can change this number
-
+LOOKAHEAD_WPS = 50 # Number of waypoints we will publish. You can change this number
+MAX_DECELERATION = 1
 
 class WaypointUpdater(object):
     def __init__(self):
@@ -31,9 +32,9 @@ class WaypointUpdater(object):
 
         rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
+        rospy.Subscriber('/traffic_waypoint', Int32, self.traffic_cb)
 
         # TODO: Add a subscriber for /traffic_waypoint and /obstacle_waypoint below
-
 
         self.final_waypoints_pub = rospy.Publisher('final_waypoints', Lane, queue_size=1)
 
@@ -43,6 +44,7 @@ class WaypointUpdater(object):
         self.xycoords_orig_waypoints = None
         self.kdtree_orig_waypoints = None
         self.id_closest_waypoint = None
+        self.id_traffic_waypoint = -1
 
         self.loop_till_shutdown()
         #rospy.spin()
@@ -52,10 +54,15 @@ class WaypointUpdater(object):
         while not rospy.is_shutdown():
             if self.latest_pose and self.kdtree_orig_waypoints:
                 self.id_closest_waypoint = self.find_id_closest_waypoint()
-                lane = Lane()
-                lane.header = self.orig_waypoints.header
-                lane.waypoints = self.orig_waypoints.waypoints[self.id_closest_waypoint : self.id_closest_waypoint + LOOKAHEAD_WPS]
-                self.final_waypoints_pub.publish(lane)
+                self.id_farthest_waypoint = self.id_closest_waypoint + LOOKAHEAD_WPS
+                final_lane = Lane()
+                final_lane.header = self.orig_waypoints.header
+                sliced_waypoints = self.orig_waypoints.waypoints[self.id_closest_waypoint : self.id_farthest_waypoint]
+                if (self.id_traffic_waypoint) == -1 or (self.id_traffic_waypoint >= self.id_farthest_waypoint):
+                    final_lane.waypoints = sliced_waypoints
+                else:
+                    final_lane.waypoints = self.braking_waypoints(sliced_waypoints)
+                self.final_waypoints_pub.publish(final_lane)
             rate.sleep()
 
     def find_id_closest_waypoint(self):
@@ -90,11 +97,28 @@ class WaypointUpdater(object):
 
     def traffic_cb(self, msg):
         # TODO: Callback for /traffic_waypoint message. Implement
-        pass
+        self.id_traffic_waypoint = msg.data
 
     def obstacle_cb(self, msg):
         # TODO: Callback for /obstacle_waypoint message. We will implement it later
         pass
+
+    def braking_waypoints(self, sliced_waypoints):
+        updated_waypoints = []
+        
+        count_stopping_wp = max(self.id_traffic_waypoint - self.id_closest_waypoint - 3, 0)
+
+        for i, waypoint in enumerate(sliced_waypoints):
+            point = Waypoint()
+            point.pose = waypoint.pose
+            stopping_dist = self.distance(sliced_waypoints, i, count_stopping_wp)
+            slowed_velocity = math.sqrt(2*MAX_DECELERATION*stopping_dist)
+            if slowed_velocity < 1.0:
+                slowed_velocity = 0.0
+            point.twist.twist.linear.x = min(slowed_velocity, waypoint.twist.twist.linear.x)
+            updated_waypoints.append(point)
+
+        return updated_waypoints
 
     def get_waypoint_velocity(self, waypoint):
         return waypoint.twist.twist.linear.x
