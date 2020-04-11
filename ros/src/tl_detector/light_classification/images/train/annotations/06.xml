@@ -1,0 +1,26 @@
+<annotation>
+	<folder>train</folder>
+	<filename>06.jpg</filename>
+	<path>/home/vnegrean/ML_DL/CarND-Capstone/ros/src/tl_detector/light_classification/images/train/06.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>800</width>
+		<height>600</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>off</name>
+		<pose>Unspecified</pose>
+		<truncated>1</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>310</xmin>
+			<ymin>1</ymin>
+			<xmax>554</xmax>
+			<ymax>124</ymax>
+		</bndbox>
+	</object>
+</annotation>

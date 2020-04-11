@@ -1,0 +1,108 @@
+<annotation>
+	<folder>images</folder>
+	<filename>01.jpg</filename>
+	<path>/home/vnegrean/ML_DL/CarND-Capstone/ros/src/tl_detector/light_classification/images/test/images/01.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>800</width>
+		<height>600</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>green</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>109</xmin>
+			<ymin>256</ymin>
+			<xmax>202</xmax>
+			<ymax>456</ymax>
+		</bndbox>
+	</object>
+</annotation>
+
+<annotation>
+	<folder>images</folder>
+	<filename>02.jpg</filename>
+	<path>/home/vnegrean/ML_DL/CarND-Capstone/ros/src/tl_detector/light_classification/images/test/images/02.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>800</width>
+		<height>600</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>yellow</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>306</xmin>
+			<ymin>256</ymin>
+			<xmax>390</xmax>
+			<ymax>446</ymax>
+		</bndbox>
+	</object>
+</annotation>
+
+<annotation>
+	<folder>images</folder>
+	<filename>03.jpg</filename>
+	<path>/home/vnegrean/ML_DL/CarND-Capstone/ros/src/tl_detector/light_classification/images/test/images/03.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>800</width>
+		<height>600</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>red</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>577</xmin>
+			<ymin>224</ymin>
+			<xmax>671</xmax>
+			<ymax>415</ymax>
+		</bndbox>
+	</object>
+</annotation>
+
+<annotation>
+	<folder>images</folder>
+	<filename>04.jpg</filename>
+	<path>/home/vnegrean/ML_DL/CarND-Capstone/ros/src/tl_detector/light_classification/images/test/images/04.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>800</width>
+		<height>600</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>off</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>356</xmin>
+			<ymin>13</ymin>
+			<xmax>554</xmax>
+			<ymax>121</ymax>
+		</bndbox>
+	</object>
+</annotation>
+
