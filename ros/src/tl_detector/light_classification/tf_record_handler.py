@@ -5,6 +5,8 @@ Usage: python3 tf_record_handler.py
 import tensorflow as tf
 import yaml
 import os
+from convert_xml_to_yaml import *
+
 
 LABEL_DICT =  {
     "green" : 1,
@@ -54,13 +56,13 @@ def create_tf_record(record):
 
     #find the boxes on annotated pictures
     xmin = record['annotation']['object']['bndbox']['xmin']
-    xmins.append(float(xmin / width))
+    xmins.append(float(int(xmin) / width))
     xmax = record['annotation']['object']['bndbox']['xmax']
-    xmaxs.append(float(xmax / width))
+    xmaxs.append(float(int(xmax) / width))
     ymin = record['annotation']['object']['bndbox']['ymin']
-    ymins.append(float(ymin / height))
+    ymins.append(float(int(ymin) / height))
     ymax = record['annotation']['object']['bndbox']['ymax']
-    ymaxs.append(float(ymax / height))
+    ymaxs.append(float(int(ymax) / height))
 
     #set the class labels and the class ids
     klass = record['annotation']['object']['name']
@@ -88,8 +90,13 @@ def create_tf_record(record):
 def main(_):
 
     #paths for YAML and JPG files
+    INPUT_YAML_PATH = './images/train/annotations/'
     INPUT_YAML = './images/train/annotations/annotations.yaml'
     INPUT_JPG_PATH = './images/train/images/'
+
+
+    #generate input yaml file
+    mulitple_xml_to_yaml(INPUT_YAML_PATH)
 
     #set up output file
     out_file = 'tf_record_sim.record'
