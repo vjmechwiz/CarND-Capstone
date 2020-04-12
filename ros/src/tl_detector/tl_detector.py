@@ -6,7 +6,7 @@ from styx_msgs.msg import TrafficLightArray, TrafficLight
 from styx_msgs.msg import Lane
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
-#from light_classification.tl_classifier import TLClassifier
+from light_classification.tl_classifier import TLClassifier
 from scipy.spatial import KDTree
 import tf
 import cv2
@@ -45,7 +45,7 @@ class TLDetector(object):
         self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
 
         self.bridge = CvBridge()
-        #self.light_classifier = TLClassifier()
+        self.light_classifier = TLClassifier()
         self.listener = tf.TransformListener()
 
         self.state = TrafficLight.UNKNOWN
@@ -59,25 +59,6 @@ class TLDetector(object):
 
         self.image_counter = 1250
         rospy.spin()
-        #self.loop_till_shutdown()
-
-    def loop_till_shutdown(self):
-        rate = rospy.Rate(10)
-        while not rospy.is_shutdown():
-            if self.pose and self.kdtree_orig_waypoints:
-                light_wp, state = self.process_traffic_lights()
-                if self.state != state:
-                    self.state_count = 0
-                    self.state = state
-                elif self.state_count >= STATE_COUNT_THRESHOLD:
-                    self.last_state = self.state
-                    light_wp = light_wp if state == TrafficLight.RED else -1
-                    self.last_wp = light_wp
-                    self.upcoming_red_light_pub.publish(Int32(light_wp))
-                else:
-                    self.upcoming_red_light_pub.publish(Int32(self.last_wp))
-                self.state_count += 1
-            rate.sleep()        
 
     def pose_cb(self, msg):
         self.pose = msg
@@ -148,19 +129,8 @@ class TLDetector(object):
         self.image_counter += 1
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
        
-        if light.state == -1:
-            classno = 3
-        else:
-            classno = light.state
-        image_file_name = '/capstone/ros/training_data/set2/image' + str(self.image_counter) + '_' + str(classno) + '.jpeg'
-        rospy.loginfo(image_file_name)
-        cv2.imwrite(image_file_name, cv_image)
-
         #Get classification
-        #return self.light_classifier.get_classification(cv_image)
-
-        #Directly use light.state for testing - when the classifier is not ready yet!
-        return light.state
+        return self.light_classifier.get_classification(cv_image)
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
