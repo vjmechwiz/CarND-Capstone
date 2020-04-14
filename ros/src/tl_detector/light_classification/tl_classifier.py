@@ -6,8 +6,7 @@ import numpy as np
 
 class TLClassifier(object):
     def __init__(self):
-        #TODO load classifier
-        self.trained_model_folder = '/home/workspace/CarND-Capstone/ros/src/tl_detector/light_classification/'
+        self.trained_model_folder = '/home/workspace/CarND-Capstone/ros/src/tl_detector/light_classification/model_01/'
         self.trained_model_graph = self.trained_model_folder + 'traffic_lights.meta'
         
         config = tf.ConfigProto()
@@ -33,8 +32,8 @@ class TLClassifier(object):
         """
         #TODO implement light color prediction
         test_prediction = 1
-        req_width = int(image.shape[1] * 0.25)
-        req_height = int(image.shape[0] * 0.25)
+        req_width = 200
+        req_height = 150
         resized_image = cv2.resize(image, (req_width, req_height), interpolation = cv2.INTER_AREA)
         norm_image = (resized_image - 127.5)/255.0
         test_input = np.expand_dims(norm_image, axis=0)

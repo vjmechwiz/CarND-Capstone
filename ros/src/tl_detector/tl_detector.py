@@ -29,6 +29,13 @@ class TLDetector(object):
         self.last_state = TrafficLight.UNKNOWN
         self.last_wp = -1
         self.state_count = 0
+        
+        self.bridge = CvBridge()
+        self.light_classifier = TLClassifier()
+        self.listener = tf.TransformListener()
+        
+        config_string = rospy.get_param("/traffic_light_config")
+        self.config = yaml.load(config_string)
 
         sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         sub2 = rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
@@ -43,14 +50,7 @@ class TLDetector(object):
         sub3 = rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
         sub6 = rospy.Subscriber('/image_color', Image, self.image_cb)
 
-        config_string = rospy.get_param("/traffic_light_config")
-        self.config = yaml.load(config_string)
-
         self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
-
-        self.bridge = CvBridge()
-        self.light_classifier = TLClassifier()
-        self.listener = tf.TransformListener()
 
         rospy.spin()
 
@@ -76,7 +76,7 @@ class TLDetector(object):
         self.has_image = True
         self.camera_image = msg
         
-        #state = TrafficLight.UNKNOWN
+        state = TrafficLight.UNKNOWN
         
         if self.pose and self.kdtree_orig_waypoints:
             light_wp, state = self.process_traffic_lights()
@@ -95,10 +95,10 @@ class TLDetector(object):
             light_wp = light_wp if state == TrafficLight.RED else -1
             self.last_wp = light_wp
             self.upcoming_red_light_pub.publish(Int32(light_wp))
-            rospy.loginfo("Red light at " + str(light_wp))
+            #rospy.loginfo("Red light at " + str(light_wp))
         else:
             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
-            rospy.loginfo("published previous signal")
+            #rospy.loginfo("published previous signal")
         self.state_count += 1
 
     def get_closest_waypoint(self, xcoord, ycoord):
