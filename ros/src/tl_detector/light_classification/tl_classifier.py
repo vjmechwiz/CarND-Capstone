@@ -6,7 +6,7 @@ import numpy as np
 
 class TLClassifier(object):
     def __init__(self):
-        self.trained_model_folder = '/home/workspace/CarND-Capstone/ros/src/tl_detector/light_classification/model_01/'
+        self.trained_model_folder = '/home/workspace/CarND-Capstone/ros/src/tl_detector/light_classification/model_02/'
         self.trained_model_graph = self.trained_model_folder + 'traffic_lights.meta'
         
         config = tf.ConfigProto()
@@ -14,7 +14,7 @@ class TLClassifier(object):
         self.sess = tf.Session(config=config)
 
         self.saver = tf.train.import_meta_graph(self.trained_model_graph)
-        self.saver.restore(self.sess, tf.train.latest_checkpoint(self.trained_model_folder + '.'))
+        self.saver.restore(self.sess, tf.train.latest_checkpoint(self.trained_model_folder))
         self.graph = tf.get_default_graph()
         self.x = self.graph.get_tensor_by_name("X:0")
         self.keep_prob = self.graph.get_tensor_by_name("Keep_prob:0")
