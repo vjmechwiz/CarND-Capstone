@@ -6,7 +6,7 @@ import numpy as np
 
 class TLClassifier(object):
     def __init__(self):
-        self.trained_model_folder = 'light_classification/model_02/'
+        self.trained_model_folder = 'light_classification/model_site_02/'
         self.trained_model_graph = self.trained_model_folder + 'traffic_lights.meta'
         
         config = tf.ConfigProto()

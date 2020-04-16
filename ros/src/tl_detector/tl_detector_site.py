@@ -6,7 +6,7 @@ from styx_msgs.msg import TrafficLightArray, TrafficLight
 from styx_msgs.msg import Lane
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
-from light_classification.tl_classifier import TLClassifier
+from light_classification.tl_classifier_site import TLClassifier
 from scipy.spatial import KDTree
 import tf
 import cv2
@@ -31,7 +31,7 @@ class TLDetector(object):
         self.state_count = 0
         
         self.bridge = CvBridge()
-        self.light_classifier = TLClassifier()
+        self.light_classifier_site = TLClassifier()
         self.listener = tf.TransformListener()
         
         config_string = rospy.get_param("/traffic_light_config")
@@ -120,10 +120,11 @@ class TLDetector(object):
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
         """
         if(not self.has_image):
+        #    self.prev_light_loc = None
             return False
         
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
-        state = self.light_classifier.get_classification(cv_image)
+        state = self.light_classifier_site.get_classification(cv_image)
         
         return state
 
@@ -144,9 +145,8 @@ class TLDetector(object):
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_line_positions = self.config['stop_line_positions']
         
-        #use more waypoints when speed_limit > 40kmph (default value) to detect and start braking much earlier 
-        #min_delta_wpid_car_line = len(self.waypoints.waypoints) - max no. of waypoints possible
-        min_delta_wpid_car_line = 50 #using only 50 waypoints limits load on camera/classification
+        #min_delta_wpid_car_line = len(self.waypoints.waypoints)
+        min_delta_wpid_car_line = 50
 
         for i, light in enumerate(self.lights):
             stop_line_xycoord = stop_line_positions[i]

@@ -11,16 +11,15 @@ ONE_MPH = 0.44704
 class Controller(object):
     def __init__(self, vehicle_mass, fuel_capacity, brake_deadband, decel_limit, accel_limit,
         wheel_radius, wheel_base, steer_ratio, max_lat_accel, max_steer_angle):
-        # TODO: Implement
-        min_speed = 0.1
 
+        min_speed = 0.1
         self.yaw_controller = YawController(wheel_base, steer_ratio, min_speed, max_lat_accel, max_steer_angle)
 
         kp = 10
         ki = 0.1
         kd = 1.0
         mn = 0.0
-        mx = 0.2
+        mx = 0.2 # limits max speed to 40kmph, use 0.5 for 60kmph
         self.throttle_controller = PID(kp, ki, kd, mn, mx)
 
         tau = 0.5
@@ -37,7 +36,6 @@ class Controller(object):
         self.last_time = rospy.get_time()
 
     def control(self, current_vel, dbw_enabled, linear_vel, angular_vel):
-        # TODO: Change the arg, kwarg list to suit your needs
         if not dbw_enabled:
             self.throttle_controller.reset()
             return 0, 0, 0

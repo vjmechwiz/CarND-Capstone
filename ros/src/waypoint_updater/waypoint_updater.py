@@ -23,22 +23,13 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 50 # Number of waypoints we will publish. You can change this number
+LOOKAHEAD_WPS = 50 
 MAX_DECELERATION = 1
 
 class WaypointUpdater(object):
     def __init__(self):
         rospy.init_node('waypoint_updater')
-
-        rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
-        rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
-        rospy.Subscriber('/traffic_waypoint', Int32, self.traffic_cb)
-
-        # TODO: Add a subscriber for /traffic_waypoint and /obstacle_waypoint below
-
-        self.final_waypoints_pub = rospy.Publisher('final_waypoints', Lane, queue_size=1)
-
-        # TODO: Add other member variables you need below
+        
         self.latest_pose = None
         self.orig_waypoints = None
         self.xycoords_orig_waypoints = None
@@ -46,8 +37,13 @@ class WaypointUpdater(object):
         self.id_closest_waypoint = None
         self.id_traffic_waypoint = -1
 
+        rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
+        rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
+        rospy.Subscriber('/traffic_waypoint', Int32, self.traffic_cb)
+
+        self.final_waypoints_pub = rospy.Publisher('final_waypoints', Lane, queue_size=1)
+
         self.loop_till_shutdown()
-        #rospy.spin()
 
     def loop_till_shutdown(self):
         rate = rospy.Rate(10)
@@ -84,11 +80,9 @@ class WaypointUpdater(object):
         return id_closest   
 
     def pose_cb(self, msg):
-        # TODO: Implement
         self.latest_pose = msg
 
     def waypoints_cb(self, waypoints):
-        # TODO: Implement
         self.orig_waypoints = waypoints
         if not self.xycoords_orig_waypoints:
             self.xycoords_orig_waypoints = [[waypoint.pose.pose.position.x, 
@@ -96,11 +90,11 @@ class WaypointUpdater(object):
             self.kdtree_orig_waypoints = KDTree(self.xycoords_orig_waypoints)
 
     def traffic_cb(self, msg):
-        # TODO: Callback for /traffic_waypoint message. Implement
+        # Callback for /traffic_waypoint message. 
         self.id_traffic_waypoint = msg.data
 
     def obstacle_cb(self, msg):
-        # TODO: Callback for /obstacle_waypoint message. We will implement it later
+        # Not required in the 2 term version of the Self-Driving Car Course
         pass
 
     def braking_waypoints(self, sliced_waypoints):
