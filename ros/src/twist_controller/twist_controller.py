@@ -19,7 +19,7 @@ class Controller(object):
         ki = 0.1
         kd = 1.0
         mn = 0.0
-        mx = 0.2 # limits max speed to 40kmph, use 0.5 for 60kmph
+        mx = 0.5 # limits max speed to 40kmph, use 0.5 for 60kmph
         self.throttle_controller = PID(kp, ki, kd, mn, mx)
 
         tau = 0.5
