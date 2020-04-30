@@ -9,6 +9,7 @@ from cv_bridge import CvBridge
 from light_classification.tl_classifier_site import TLClassifier
 from scipy.spatial import KDTree
 import tf
+import numpy as np
 import cv2
 import yaml
 
@@ -16,7 +17,7 @@ STATE_COUNT_THRESHOLD = 3
 
 class TLDetector(object):
     def __init__(self):
-        rospy.init_node('tl_detector')
+        rospy.init_node('tl_detector_site')
 
         self.pose = None
         self.waypoints = None
@@ -32,6 +33,8 @@ class TLDetector(object):
         
         self.bridge = CvBridge()
         self.light_classifier_site = TLClassifier()
+        #classify a blank black image at first, since the first image takes too long to classify
+        self.light_classifier_site.get_classification(np.zeros((600, 800, 3)))
         self.listener = tf.TransformListener()
         
         config_string = rospy.get_param("/traffic_light_config")
@@ -92,7 +95,8 @@ class TLDetector(object):
             self.state = state
         elif self.state_count >= STATE_COUNT_THRESHOLD:
             self.last_state = self.state
-            light_wp = light_wp if state == TrafficLight.RED else -1
+            light_wp = light_wp if (state == TrafficLight.RED 
+                                 or state == TrafficLight.YELLOW) else -1
             self.last_wp = light_wp
             self.upcoming_red_light_pub.publish(Int32(light_wp))
             #rospy.loginfo("Red light at " + str(light_wp))
@@ -146,7 +150,7 @@ class TLDetector(object):
         stop_line_positions = self.config['stop_line_positions']
         
         #min_delta_wpid_car_line = len(self.waypoints.waypoints)
-        min_delta_wpid_car_line = 50
+        min_delta_wpid_car_line = 100 #using only 100 waypoints limits load on camera/classification
 
         for i, light in enumerate(self.lights):
             stop_line_xycoord = stop_line_positions[i]
