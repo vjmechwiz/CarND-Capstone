@@ -1,55 +1,61 @@
 from styx_msgs.msg import TrafficLight
-import cv2
 import tensorflow as tf
 import numpy as np
+import cv2
+import os
 
+FASTER_RCNN_INCEPTION_V2_MODEL = 'light_classification/model_04/faster_rcnn_inception_v2_traffic_lights.pb'
 
 class TLClassifier(object):
     def __init__(self):
-        self.trained_model_folder = 'light_classification/model_02/'
-        self.trained_model_graph = self.trained_model_folder + 'traffic_lights.meta'
-        
+        self.model_file = FASTER_RCNN_INCEPTION_V2_MODEL
+        self.detection_graph = self.load_graph(self.model_file)
+       
+        #create session
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
-        self.sess = tf.Session(config=config)
-
-        self.saver = tf.train.import_meta_graph(self.trained_model_graph)
-        self.saver.restore(self.sess, tf.train.latest_checkpoint(self.trained_model_folder))
-        self.graph = tf.get_default_graph()
-        self.x = self.graph.get_tensor_by_name("X:0")
-        self.keep_prob = self.graph.get_tensor_by_name("Keep_prob:0")
-        self.logits = self.graph.get_tensor_by_name("Logits:0")
+        self.session = tf.Session(graph=self.detection_graph, config=config)
         
+        #get variables from graph in session
+        self.image_tensor = self.detection_graph.get_tensor_by_name('image_tensor:0')
+        self.detection_boxes = self.detection_graph.get_tensor_by_name('detection_boxes:0')
+        self.detection_scores = self.detection_graph.get_tensor_by_name('detection_scores:0')
+        self.detection_classes = self.detection_graph.get_tensor_by_name('detection_classes:0')
+        self.states = [TrafficLight.RED, TrafficLight.YELLOW, TrafficLight.GREEN, TrafficLight.UNKNOWN]
+        self.color_text = ['RED', 'YELLOW', 'GREEN', 'OFF']
+
+
     def get_classification(self, image):
-        """Determines the color of the traffic light in the image
+        """Performs actual classification on images"""
+        image_expand = np.expand_dims(image, axis=0)
+        (boxes, scores, classes) = self.session.run([self.detection_boxes, self.detection_scores, self.detection_classes], feed_dict={self.image_tensor: image_expand})
 
-        Args:
-            image (cv::Mat): image containing the traffic light
+        # Remove unnecessary dimensions
+        boxes = np.squeeze(boxes)
+        scores = np.squeeze(scores)
+        classes = np.squeeze(classes)
+        
+        index = int(classes[0]) - 1
+        #print ("Color is", self.color_text[index])
 
-        Returns:
-            int: ID of traffic light color (specified in styx_msgs/TrafficLight)
+        return self.states[index]
+  
 
-        """
-        #implements light color prediction
-        test_prediction = 3
-        req_width = 200
-        req_height = 150
-        resized_image = cv2.resize(image, (req_width, req_height), interpolation = cv2.INTER_AREA)
-        norm_image = (resized_image - 127.5)/255.0
-        test_input = np.expand_dims(norm_image, axis=0)
+    def load_graph(self, graph_file):
+        """Loads a frozen inference graph"""
+        graph = tf.Graph()
+        with graph.as_default():
+            od_graph_def = tf.GraphDef()
+            with tf.gfile.GFile(graph_file, 'rb') as fid:
+                serialized_graph = fid.read()
+                od_graph_def.ParseFromString(serialized_graph)
+
+                tf.import_graph_def(od_graph_def, name='')
+
+        return graph
+
+        
+                
        
-        test_prediction = self.sess.run(tf.argmax(self.logits, 1), feed_dict={self.x: test_input, self.keep_prob: 1.0})
-   
-        if test_prediction == 0:
-            #print("RED")
-            return TrafficLight.RED
-        elif test_prediction == 1:
-            #print("YELLOW")
-            return TrafficLight.YELLOW
-        elif test_prediction == 2:
-            #print("GREEN")
-            return TrafficLight.GREEN
-        else:
-            #print("UNKNOWN")
-            return TrafficLight.UNKNOWN
 
+ 
