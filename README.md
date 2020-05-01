@@ -169,7 +169,7 @@ The perception module is implemented in the node `tl_detector`. It subscribes to
 
 `tl_classifier_site.py` : Does the same work as the previous file; is used for the site.
 
-and some models : Multiple models trained on the generated image data. The folder named `model_02` contains the final trained model used for prediction in the simulator and the folder named `model_site_02` contains the final trained model used for prediction on the site. In these models, a simple classifier that classifies traffic signals into 4 classes of red, yellow, green and unknown is used.
+and some models : Multiple models trained on the generated image data. The folder named `model_04` contains the final trained model used for prediction in the simulator and the folder named `model_site_04` contains the final trained model used for prediction on the site. In these models, an objection detection algorithm that classifies traffic signals into 3 classes of red, yellow and green is trained using the TensorFlow Object Detection API. A Faster RCNN Inception V2 model pretrained on Coco dataset and fine-tuned on simulator and test rosbag video images is used for the object detection. More details about this object detection pipeline can be found [here](./tf_object_detection_pipeline.md).
 
 ### Planning
 
