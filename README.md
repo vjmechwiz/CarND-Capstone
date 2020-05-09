@@ -19,19 +19,13 @@ So, first let's get to know the team - 3 engineers from Bucharest to Bangalore t
 
 Vijay is a mechanical engineer by educational background and currently works as a crash safety engineer churning out simulations at Mercedes-Benz R&D from the Silicon Valley of India, Bangalore. He loves building stuff and making things work - your typical engineer!
 
-Udacity account Email id: a.vijay.alagappan@gmail.com
-
 2. Kevin Chiu 
 
 Kevin's a software engineer who writes driver and software utilities, and still goes to office in these days of the Coronavirus! He is from one of Asia's richest and high-tech modern cities - Taipei(Taiwan). He works at day and does Udacity courses at night, and dreams to be a self-driving car engineer one day!
 
-Udacity account Email id: chiukevin08@gmail.com
-
 3. Vlad Negreanu
 
 Vlad is a software engineer writing driver software and is currently locked down and working from home like Vijay. He comes from the 'Paris of the East' - the beautiful city of Bucharest (Romania). He spends his day time on work and several sleepless nights coding!
-
-Udacity account Email id: vnegreanu@yahoo.com
 
 Now, lets get to the part on how to install required software and get things running..
 
